@@ -1,0 +1,13 @@
+Estou produzindo um ebook e construí este planejamento para ele. Estude todo o conteúdo presente no <planejamento></planejamento>, para depois produzir por partes ele por completo.
+
+Primeiro, gere um breve resumo de 4 linhas de tudo o que você entendeu do planejamento e depois me confirme que todo contexto já foi avaliado. 
+
+<planejamento>
+{{ conteudo aqui dentro }}
+</planejamento>
+
+—
+
+<instruções>
+Os textos devem ser claros, utilizando-se de uma linguagem rica em exemplos que facilitam a compreensão dos clientes. Gere sempre conteúdos extensos para que o ebook fique no final das solicitações robusto e rico em informações.
+</instruções> 

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Velha</title>
+    <style>
+        body {
+            font-family: "Courier New", Courier, monospace;
+            text-align: center;
+            background-color: #000;
+            color: #0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            color: #0f0;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 5px;
+            justify-content: center;
+            margin: 20px auto;
+            position: relative;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: #111;
+            border: 2px solid #0f0;
+            font-size: 2em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #0f0;
+            position: relative;
+        }
+
+        .cell.taken {
+            cursor: not-allowed;
+        }
+
+        .cell.x {
+            color: #ff0000;
+        }
+
+        .cell.o {
+            color: #00ffff;
+        }
+
+        .message {
+            margin: 20px;
+            font-size: 1.2em;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .win-line {
+            position: absolute;
+            background-color: #0f0;
+            height: 4px;
+            transform-origin: left;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Jogo da Velha</h1>
+    <div class="game-board" id="gameBoard"></div>
+    <div class="message" id="message"></div>
+    <button onclick="resetGame()">Reiniciar Jogo</button>
+    <script>
+        const board = ["", "", "", "", "", "", "", "", ""];
+        let currentPlayer = "X";
+        let gameActive = true;
+
+        const winningConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Linhas
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Colunas
+            [0, 4, 8], [2, 4, 6]             // Diagonais
+        ];
+
+        const gameBoard = document.getElementById("gameBoard");
+        const message = document.getElementById("message");
+
+        function createBoard() {
+            gameBoard.innerHTML = "";
+            board.forEach((cell, index) => {
+                const cellElement = document.createElement("div");
+                cellElement.classList.add("cell");
+                cellElement.dataset.index = index;
+                cellElement.textContent = cell;
+                if (cell === "X") {
+                    cellElement.classList.add("x");
+                } else if (cell === "O") {
+                    cellElement.classList.add("o");
+                }
+                cellElement.addEventListener("click", handleCellClick);
+                gameBoard.appendChild(cellElement);
+            });
+        }
+
+        function handleCellClick(event) {
+            const cellIndex = event.target.dataset.index;
+
+            if (board[cellIndex] !== "" || !gameActive) return;
+
+            board[cellIndex] = currentPlayer;
+            event.target.textContent = currentPlayer;
+            event.target.classList.add(currentPlayer.toLowerCase());
+            event.target.classList.add("taken");
+
+            if (checkWinner()) {
+                message.textContent = `Jogador ${currentPlayer} venceu!`;
+                drawWinningLine();
+                gameActive = false;
+                return;
+            }
+
+            if (board.every(cell => cell !== "")) {
+                message.textContent = "Empate!";
+                gameActive = false;
+                return;
+            }
+
+            currentPlayer = currentPlayer === "X" ? "O" : "X";
+            message.textContent = `É a vez do jogador ${currentPlayer}`;
+        }
+
+        function checkWinner() {
+            return winningConditions.some(condition => {
+                const isWinning = condition.every(index => board[index] === currentPlayer);
+                if (isWinning) {
+                    drawWinningLine(condition);
+                }
+                return isWinning;
+            });
+        }
+
+        function drawWinningLine(condition) {
+            const firstCell = document.querySelector(`[data-index='${condition[0]}']`);
+            const lastCell = document.querySelector(`[data-index='${condition[2]}']`);
+
+            const rect1 = firstCell.getBoundingClientRect();
+            const rect2 = lastCell.getBoundingClientRect();
+
+            const x1 = rect1.left + rect1.width / 2;
+            const y1 = rect1.top + rect1.height / 2;
+            const x2 = rect2.left + rect2.width / 2;
+            const y2 = rect2.top + rect2.height / 2;
+
+            const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+            const angle = Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
+
+            const line = document.createElement("div");
+            line.classList.add("win-line");
+            line.style.width = `${length}px`;
+            line.style.transform = `translate(${x1 - rect1.left}px, ${y1 - rect1.top}px) rotate(${angle}deg)`;
+
+            gameBoard.appendChild(line);
+        }
+
+        function resetGame() {
+            board.fill("");
+            currentPlayer = "X";
+            gameActive = true;
+            message.textContent = "É a vez do jogador X";
+            createBoard();
+        }
+
+        // Inicializar o jogo
+        createBoard();
+        message.textContent = "É a vez do jogador X";
+    </script>
+</body>
+
+</html>
